@@ -70,6 +70,7 @@ Among all the generated folders and files, three deserve special attention:
 2. pk_pannotate.out.
 
 ![alt text](https://github.com/Maj18/Rparalog/blob/master/pk_pannotate.out.png)
+
 	* For each member of each paralog cluster:
 	
 Gene_id  |  UniprotID_of_blastp_best_hit  |  PfamID_of_blastp_best_hit |  Functional_description_of_blastp_best_hit
