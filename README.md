@@ -69,8 +69,9 @@ Among all the generated folders and files, three deserve special attention:
 Inline-style: 
 ![alt text](https://github.com/Maj18/Rparalog/blob/master/pk_pannotate.out.png)
 	* For each member of each paralog cluster:
-| the gene_id  |  uniprotID_of_blastp_best_hit  |  pfamID_of_blastp_best_hit |  functional_description_of_blastp_best_hit |
-| ----------------  |  --------------------------------------  |  ------------------------------------ |  --------------------------------------------------------|
+* 
+the gene_id  |  uniprotID_of_blastp_best_hit  |  pfamID_of_blastp_best_hit |  functional_description_of_blastp_best_hit
+---  |  ---  |  ---  |  ---  |
 3. paralog_seq folder: here the protein sequences of all the paralogous copies for each cluster will be collected into one single file.
 	
 			
