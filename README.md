@@ -77,7 +77,7 @@ Gene_id  |  UniprotID_of_blastp_best_hit  |  PfamID_of_blastp_best_hit |  Functi
 
 3. paralog_seq folder: here the protein sequences of all the paralogous copies for each cluster will be collected into one single file.
 	
-##Caution!
+## Caution!
 	* It should be noted that, the Rparalog program can only predict what paralogs are there in a genome, but can’t tell their exact copy number, the variation of which has been found to cause many different kinds of diseases [1, 2]. This is because nowadays, the assembled genomes are mostly haploid, due to the assembling challenge in separating between homologous chromosomes. However, as the fast development of long-fragment sequencing technology, it may be possible one day to assemble homologous chromosomes separately, then it would be much easier to use Rparalog to decide the copy numbers of paralogs with high confidence.			
 		
 	
