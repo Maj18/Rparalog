@@ -55,11 +55,11 @@ Paralogs are homologous DNA/protein sequences that are found within species, the
 		```bash
 		sqlite3 SwissProt.sqlite
 		```
-			1. `.separator "\t"`
-			2.  `CREATE TABLE swissprot (accnr CHAR(7) PRIMARY KEY, description VARCHAR(240), taxid INTEGER(8), location VARCHAR(50), interpro VARCHAR(310), pfam VARCHAR(130), go_c VARCHAR(240), go_f VARCHAR(200), go_p VARCHAR(1100), ec VARCHAR(170), sequence TEXT);`
-			3.  `.import sprot.tab swissprot`
-			4.  `CREATE INDEX accnr ON swissprot (accnr);`
-			5.  `.quit`
+			`.separator "\t"`
+			`CREATE TABLE swissprot (accnr CHAR(7) PRIMARY KEY, description VARCHAR(240), taxid INTEGER(8), location VARCHAR(50), interpro VARCHAR(310), pfam VARCHAR(130), go_c VARCHAR(240), go_f VARCHAR(200), go_p VARCHAR(1100), ec VARCHAR(170), sequence TEXT);`
+			`.import sprot.tab swissprot`
+			`CREATE INDEX accnr ON swissprot (accnr);`
+			`.quit`
 			
 ## Output files:
 Among all the generated folders and files, three deserve special attention:
