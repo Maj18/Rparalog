@@ -65,10 +65,10 @@ Paralogs are homologous DNA/protein sequences that are found within species, the
 Among all the generated folders and files, three deserve special attention:
 1. pk_paralog.out.
 
-	the_number_of_cluster_members |  homologous_copy1  |  homologous_copy2.......
+	The_number_of_cluster_members |  Paralogous_copy1  |  Paralogous_copy2.......
 	---  |  ---  |  ---
 2. pk_pannotate.out.
-Inline-style: 
+
 ![alt text](https://github.com/Maj18/Rparalog/blob/master/pk_pannotate.out.png)
 	* For each member of each paralog cluster:
 	
