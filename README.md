@@ -1,13 +1,11 @@
 # Rparalog:  
 ## Overview: 
 Paralogs are homologous DNA/protein sequences that are found within species, they are the outcomes of gene duplicateion events. Gene duplications are important sources of genetic novelty and paralogs can also cause diseases (such as cancer). Rparalog is one program that identifies paralogs from an assembled genome based on protein sequences similarity using a relaxed reciprocal-best-hit BLAST strategy.
-
 ### Features: 
-* A stringent **E-value** threshold (user can provided their own choice via a command line argument _-e_) plus the blast reciprocal-hit rule for accepting homologs (See Analysis 3) should have a good control of the prediction confidence. 
+* A stringent **E-value** threshold plus the blast reciprocal-hit rule for accepting homologs (See Analysis 3) should have a good control of the prediction confidence. 
 * Through command line argument (_-e_, see Usage), the user can decide the E-value threshold based on their study system.
 * The paralog **annotation** results can also help the users to inspect their results.
 * The protein sequences for all the members within a cluster will be collected into single files, to facilitate any follow-up analyses.
- 
 ### Usage
 * The program should be run as 
 ```bash
@@ -72,8 +70,6 @@ Among all the generated folders and files, three deserve special attention:
 
 Gene_id  |  UniprotID_of_blastp_best_hit  |  PfamID_of_blastp_best_hit |  Functional_description_of_blastp_best_hit
 ---  |  ---  |  ---  |  ---  |
-
-![alt text](https://github.com/Maj18/Rparalog/blob/master/pk_pannotate.out.png) 
 
 3. paralog_seq folder: here the protein sequences of all the paralogous copies for each cluster will be collected into one single file.
 	
