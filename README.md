@@ -68,7 +68,8 @@ Among all the generated folders and files, three deserve special attention:
 	The_number_of_cluster_members |  Paralogous_copy1  |  Paralogous_copy2.......
 	---  |  ---  |  ---
 2. pk_pannotate.out.
-![alt text](https://github.com/Maj18/Rparalog/blob/master/pk_pannotate.out.png)
+
+![alt text](https://github.com/Maj18/Rparalog/blob/master/pk_pannotate.out.png) " "
 
 	* For each member of each paralog cluster:
 	
