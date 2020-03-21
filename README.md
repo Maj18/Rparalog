@@ -48,16 +48,27 @@ Paralogs are homologous DNA/protein sequences that are found within species, the
 	3. Withdraw protein sequences from the 1A .faa file for all the members within a paralog cluster into one file and put in the paralog_seq folder.
 	4. The SwissProt.sqlite database is built as follows:
 		1. Download SwissProt database: `wget ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/ uniprot_sprot.dat.gz`
-		2. Put each SwissProt record on one line (sprot.tab), createUniProtTab.pl -i uniprot_sprot.dat -o sprot
+		2. Put each SwissProt record on one line (sprot.tab), 
+		```bash
+		createUniProtTab.pl -i uniprot_sprot.dat -o sprot
+		```
 		3. Create the database: 
 		```bash
 		sqlite3 SwissProt.sqlite
 		```
 			.separator "\t"
-			CREATE TABLE swissprot (accnr CHAR(7) PRIMARY KEY, description VARCHAR(240), taxid INTEGER(8), location VARCHAR(50), interpro VARCHAR(310), pfam VARCHAR(130), go_c VARCHAR(240), go_f VARCHAR(200), go_p VARCHAR(1100), ec VARCHAR(170), sequence TEXT);`
-			.import sprot.tab swissprot`
+			CREATE TABLE swissprot (accnr CHAR(7) PRIMARY KEY, description VARCHAR(240), taxid INTEGER(8), location VARCHAR(50), interpro VARCHAR(310), pfam VARCHAR(130), go_c VARCHAR(240), go_f VARCHAR(200), go_p VARCHAR(1100), ec VARCHAR(170), sequence TEXT);
+			.import sprot.tab swissprot
+			UPDATE swissprot SET location = null WHERE location = "null";
+			UPDATE swissprot SET interpro = null WHERE interpro = "null";
+			UPDATE swissprot SET pfam = null WHERE pfam = "null";
+			UPDATE swissprot SET go_c = null WHERE go_c = "null";
+			UPDATE swissprot SET go_f = null WHERE go_f = "null";
+			UPDATE swissprot SET go_p = null WHERE go_p = "null";
+			UPDATE swissprot SET ec = null WHERE ec = "null";
 			CREATE INDEX accnr ON swissprot (accnr);
 			.quit
+   * (In databases a missing value is represented by the null value. However when we import data to a SQLite table it’s not possible to set a value to be absent. In our data we have represented missing value as the string null. We have to convert these values to true null values, that's why we did the UPDATE steps above)
 			
 ## Output files:
 Among all the generated folders and files, three deserve special attention:
