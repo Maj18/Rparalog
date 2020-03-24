@@ -178,6 +178,7 @@ def pannotate(proteinfile):
                         c.execute('SELECT pfam, description FROM swissprot WHERE accnr=?;', uniprotID)
                         for row in c:
                             print("\t".join(map(str, row)), file=fout4)
+                            print(file=fout4)
             n += 1
 
 if __name__ == "__main__":
