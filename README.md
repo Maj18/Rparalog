@@ -99,14 +99,11 @@ Gene_id  |  UniprotID_of_blastp_best_hit  |  PfamID_of_blastp_best_hit |  Functi
 ```bash
 ./src/Rparalog.py -p proteinfile  -b namebase -e evalue & disown
 ```
-* Here, 
 
 -p  |  proteinpfile  |  a .faa file that include all the protein sequences of a genome.
 ---  |  ---  |  ---  |
 -b  |  namebase  |  prefix for all output file names, 
----  |  ---  |  ---  |
 -e  |  evalue  |  = the E-value of BLAST, evalue should be smaller than 1e-10. 
----  |  ---  |  ---  |
 
 ## Caution!
 
