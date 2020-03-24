@@ -2,13 +2,13 @@
 This manual corresponds to version 1.2
 
 ## Introduction
-Paralogs are homologous DNA/protein sequences that are found within species, they are the outcomes of gene duplicateion events. Gene duplications are important sources of genetic novelty and paralogs can also cause diseases (such as cancer). Rparalog is one program that identifies paralogs from an assembled genome based on protein sequences similarity using a relaxed reciprocal-best-hit BLAST strategy.
+Paralogs are homologous DNA/protein sequences that are found within species, they are the outcomes of gene duplicateion events. Gene duplications are important sources of genetic novelty. Rparalog is one program that identifies paralogs based on protein sequences similarity using a relaxed reciprocal-best-hit BLAST strategy.
 
 ### Features: 
-* A stringent **E-value** threshold plus the blast reciprocal-hit rule for accepting homologs (See Analysis 3) should have a good control of the prediction confidence. 
-* Through command line argument (_-e_, see Usage), the user can decide the E-value threshold based on their study system.
-* The paralog **annotation** results can also help the users to inspect their results.
-* The protein sequences for all the members within a cluster will be collected into single files, to facilitate any follow-up analyses.
+* A stringent **E-value** threshold plus the blast reciprocal-hit rule for accepting paralogs (See Analysis 3) should have a good control of the prediction confidence. 
+* Through command line argument (_-e_, see **Usage**), the user can decide the E-value threshold based on their study system.
+* The paralog **annotation** output can also help the users to inspect their results.
+* The protein sequences for all the members within a paralog cluster will be collected into single files, to facilitate any follow-up analyses.
 
 ## Installation
 ### Prerequisites
@@ -17,7 +17,7 @@ To run Rparalog, you need:
 * makeblastdb 2.7.1+
 * blastp 2.7.1+
 * sqlite 3.27.2
-* a simple SwissProt.sqlite database should be built beforehand (see below for more instruction), and SwissProt.sqlite should be put in the folder src. 
+* a simple SQLite database (with the fixed name: SwissProt.sqlite) should be built beforehand (see below for more instruction), and SwissProt.sqlite should be put in the folder, src/. 
 		1. Download SwissProt database: `wget ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/ uniprot_sprot.dat.gz`
 		2. Put each SwissProt record on one line (sprot.tab), 
 		```bash
@@ -39,7 +39,7 @@ To run Rparalog, you need:
 			UPDATE swissprot SET ec = null WHERE ec = "null";
 			CREATE INDEX accnr ON swissprot (accnr);
 			.quit
-   * (In databases a missing value is represented by the null value. However when we import data to a SQLite table it’s not possible to set a value to be absent. In our data we have represented missing value as the string null. We have to convert these values to true null values, that's why we did the UPDATE steps above)
+   * (In databases, a missing value is represented by the null value. However when we import data to a SQLite table it’s not possible to set a value to be absent. In our data we have represented missing value as the string null. We have to convert these values to true null values, that's why we did the UPDATE steps above)
 
 ### Building and installing 
 * If you have git installed on your computer, you can simply get the software by 
@@ -54,7 +54,7 @@ git clone https://github.com/Maj18/Rparalog.git
 ./src/Rparalog.py -p proteinfile  -b namebase -e evalue & disown
 
 ## Quick Tutorial
-Rparalog assumes that you have all your protein sequences in FASTA format, the software package contains an example, namely pk.faa. The full command line for the example files would thus be `./src/Rparalog.py -p pk.faa -b pk -e 1e-50 & disown`. (Please be aware that examples of SwissProt.sqlite database, .blastp (against SwissProt database) and self-database and .blast (against self-built database) have been provided for quick test, due to the uploading size limitation of Github, some of these files are not complete, therefore the ..._pannotate.out will have lots of missing data, just you know it.
+Rparalog assumes that you have all your protein sequences in FASTA format, the software package contains an example, namely pk.faa. The full command line for the example file would thus be `./src/Rparalog.py -p pk.faa -b pk -e 1e-50 & disown`. (Please be aware that examples of SwissProt.sqlite database, .blastp (against SwissProt database) and BLAST database (built on .faa) and a second .blast (against self-built BLAST database) have been provided for quick test, due to the uploading size limitation of Github, some of these files are not complete, therefore the ..._pannotate.out will have lots of missing data, just you know it.
 
 Below is a step by step explanation of how the software works:
 
@@ -77,14 +77,14 @@ Below is a step by step explanation of how the software works:
 6. Annotate the predicted paralogs:
 	A. parse the .blastP file (from step 1) and get the uniprot accession no. of the best hit for each query.
 	B. Use the uniprot id from 6A to withdraw the corresponding pfam domain and protein description information from the self-built databse SwissProti.sqlite (see **Prerequisites**).
-	C. Withdraw protein sequences from the  .faa file for all the members within a paralog cluster into one file and put it in the paralog_seq folder.
+	C. Withdraw the protein sequences from the  .faa file for all the members of each paralog cluster and put them into single files and store those files in the paralog_seq folder.
 			
 ### Output files:
 Among all the generated folders and files, three deserve special attention:
 1. {namebase}_paralogCluster.out
 
-	The_number_of_cluster_members |  Paralogous_copy1  |  Paralogous_copy2  
-	---  |  ---  |  ---
+	The_number_of_cluster_members |  Paralogous_copy1  |  Paralogous_copy2  | ...
+	---  |  ---  |  --- | ---
 	
 2. {namebase}_pannotate.out.
 
@@ -100,10 +100,9 @@ Gene_id  |  UniprotID_of_blastp_best_hit  |  PfamID_of_blastp_best_hit |  Functi
 ./src/Rparalog.py -p proteinfile  -b namebase -e evalue & disown
 ```
 
--p  |  proteinpfile  |  a .faa file that include all the protein sequences of a genome.
----  |  ---  |  ---  |
+-p  |  proteinpfile  |  a .faa file that includes all the protein sequences of a genome.
 -b  |  namebase  |  prefix for all output file names, 
--e  |  evalue  |  = the E-value of BLAST, evalue should be smaller than 1e-10. 
+-e  |  evalue  |  = the E-value of BLAST, this evalue will be used in step 3 for choosing stringent blast hits and it should be smaller than 1e-10. 
 
 ## Caution!
 
