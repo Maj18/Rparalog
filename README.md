@@ -66,7 +66,6 @@ Below is a step by step explanation of how the software works:
 2. Self BLASTP:
 	A. Build a database from the .faa file.
 	B. Blast the .faa file against its own database (from 2A).
-
 **PartII.**
 3. Parse  the self .blastp file:
 	* In this step, the .blastp file from 2B will be parsed to withdraw all the hits for each query, The output file contains query-hit pairs.
@@ -74,7 +73,6 @@ Below is a step by step explanation of how the software works:
 	* Only protein pairs that are each other's hit within the 2B blastp analysis are kept as paralogous pairs.
 5. Paralog clustering:
 	* Paralogous pairs were clustered together into paralog clusters if they have any shared members.
-
 **PartIII.**
 6. Annotate the predicted paralogs:
 	A. parse the .blastP file (from step 1) and get the uniprot accession no. of the best hit for each query.
@@ -105,7 +103,7 @@ Gene_id  |  UniprotID_of_blastp_best_hit  |  PfamID_of_blastp_best_hit |  Functi
 -p  |  proteinpfile  |  a .faa file that includes all the protein sequences of a genome.
 --- | --- | ---
 -b  |  namebase  |  prefix for all output file names, 
--e  |  evalue  |  = the E-value of BLAST, this evalue will be used in step 3 for choosing stringent blast hits and it should be smaller than 1e-10. 
+-e  |  evalue  |  E-value of BLAST, used in step 3 for choosing stringent blast hits and it should be smaller than 1e-10. 
 
 ## Caution!
 
