@@ -102,7 +102,7 @@ Gene_id  |  UniprotID_of_blastp_best_hit  |  PfamID_of_blastp_best_hit |  Functi
 * Here, 
 -p | proteinpfile | a .faa file that include all the protein sequences of a genome.
 -b | namebase |  prefix for all output file names, 
--d | evalue |  = the E-value of BLAST, evalue should be smaller than 1e-10. 
+-e | evalue |  = the E-value of BLAST, evalue should be smaller than 1e-10. 
 
 ## Caution!
 
