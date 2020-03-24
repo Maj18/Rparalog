@@ -1,35 +1,37 @@
-# Rparalog:  
-## Overview: 
+# Rparalog Manual
+This manual corresponds to version 1.1
+
+## Introduction
 Paralogs are homologous DNA/protein sequences that are found within species, they are the outcomes of gene duplicateion events. Gene duplications are important sources of genetic novelty and paralogs can also cause diseases (such as cancer). Rparalog is one program that identifies paralogs from an assembled genome based on protein sequences similarity using a relaxed reciprocal-best-hit BLAST strategy.
+
 ### Features: 
 * A stringent **E-value** threshold plus the blast reciprocal-hit rule for accepting homologs (See Analysis 3) should have a good control of the prediction confidence. 
 * Through command line argument (_-e_, see Usage), the user can decide the E-value threshold based on their study system.
 * The paralog **annotation** results can also help the users to inspect their results.
 * The protein sequences for all the members within a cluster will be collected into single files, to facilitate any follow-up analyses.
-### Usage
-* The program should be run as 
-```bash
-./src/Rparalog.py -g genomefile -f gtffile -p blastpfile -b namebase -e evalue & disown`
-```
-* Here, 
-	* genomefile are an assemble genome sequence fasta file,
-	* gtffile is a .gtf that is generated from a GeneMark gene prediction analysis, 
-	* blastpfile is a .blastp file that comes from a blastp of the predicted protein sequence files again SwissProt database (uniprot database is also fine).
-	* namebase for defining the output file names, 
-	* evalue = the E-value of BLAST, evalue should be smaller than 1e-10 (this the e-value that is used for the self blast within the program). 
 
-* e.g. 
-```bash
-./src/Rparalog.py -g data/Plasmodium_knowlesi.genome -f data/Plasmodium_knowlesi.gtf -p ./blastp/pk.blastp -b pk -e 1e-50 & disown
-```
-* (NBS. Please use the example command line for testing as it is given, because some of the steps (like the gffparse, makeblastdb, and blastp steps) in the program take too long time, therefore for testing, the output for those time-consuming steps have been included in the repository and therefore can be used directly for the following steps.)
-
-## Software version:
+## Installation
+### Prerequisites
+To run Rparalog, you need:
 * Python 3.7.3 (with sqlite3, argparse, subprocess installed)
-* gffParse.pl: stands in bin folder, got from teacher
 * makeblastdb 2.7.1+
 * blastp 2.7.1+
 * sqlite 3.27.2
+
+### Building and installing 
+* If you have git installed on your computer, you can simply get the software by 
+```bash
+git clone https://github.com/Maj18/Rparalog.git
+```
+* Otherwise, you can download the software folder from https://github.com/Maj18/Rparalog.
+* Change directory into the extracted folder e.g. via cd Rparalog or cd Rparalog-master (if downloaded directly)
+* you can now run ./src/Rparalog.py ... directly.
+
+## Quick Start
+./src/Rparalog.py -p proteinfile  -b namebase -e evalue & disown
+
+## Quick Tutorial
+Rparalog assumes that you have all your protein sequences in FASTA format,
 
 ## Analysis
 1. Self BLASTP:
@@ -83,6 +85,25 @@ Gene_id  |  UniprotID_of_blastp_best_hit  |  PfamID_of_blastp_best_hit |  Functi
 ---  |  ---  |  ---  |  ---  |
 
 3. paralog_seq folder: here the protein sequences of all the paralogous copies for each cluster will be collected into one single file.
+
+
+## Usage
+* The program should be run as 
+```bash
+./src/Rparalog.py -p proteinfile  -b namebase -e evalue & disown
+```
+* Here, 
+	* genomefile are an assemble genome sequence fasta file,
+	* gtffile is a .gtf that is generated from a GeneMark gene prediction analysis, 
+	* blastpfile is a .blastp file that comes from a blastp of the predicted protein sequence files again SwissProt database (uniprot database is also fine).
+	* namebase for defining the output file names, 
+	* evalue = the E-value of BLAST, evalue should be smaller than 1e-10 (this the e-value that is used for the self blast within the program). 
+
+* e.g. 
+```bash
+./src/Rparalog.py -g data/Plasmodium_knowlesi.genome -f data/Plasmodium_knowlesi.gtf -p ./blastp/pk.blastp -b pk -e 1e-50 & disown
+```
+* (NBS. Please use the example command line for testing as it is given, because some of the steps (like the gffparse, makeblastdb, and blastp steps) in the program take too long time, therefore for testing, the output for those time-consuming steps have been included in the repository and therefore can be used directly for the following steps.)
 	
 ## Caution!
 
