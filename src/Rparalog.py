@@ -176,12 +176,13 @@ def pannotate(proteinfile):
                         conn = sqlite3.connect('./src/SwissProt.sqlite') #Make a connection object
                         c = conn.cursor() #Create a cursor object
                         c.execute('SELECT pfam, description FROM swissprot WHERE accnr=?;', uniprotID)
+                        row=""
                         for row in c:
-                            if row:
-                            print("\t".join(map(str, row)), file=fout4)
-                            else:
-                                print(file=fout4)
+                                print("\t".join(map(str, row)), end="\n", file=fout4)
+                        if not row:
+                            print(file=fout4)
             n += 1
+
 
 if __name__ == "__main__":
     selfblastp(proteinfile, namebase)
