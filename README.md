@@ -67,7 +67,7 @@ Below is a step by step explanation of how the software works:
 	A. Build a database from the .faa file.
 	B. Blast the .faa file against its own database (from 2A).
 
-**PartII**
+**PartII.**
 3. Parse  the self .blastp file:
 	* In this step, the .blastp file from 2B will be parsed to withdraw all the hits for each query, The output file contains query-hit pairs.
 4. Get paralogous pairs:
@@ -75,7 +75,7 @@ Below is a step by step explanation of how the software works:
 5. Paralog clustering:
 	* Paralogous pairs were clustered together into paralog clusters if they have any shared members.
 
-**PartIII**
+**PartIII.**
 6. Annotate the predicted paralogs:
 	A. parse the .blastP file (from step 1) and get the uniprot accession no. of the best hit for each query.
 	B. Use the uniprot id from 6A to withdraw the corresponding pfam domain and protein description information from the self-built databse SwissProti.sqlite (see **Prerequisites**).
@@ -102,8 +102,8 @@ Gene_id  |  UniprotID_of_blastp_best_hit  |  PfamID_of_blastp_best_hit |  Functi
 ./src/Rparalog.py -p proteinfile  -b namebase -e evalue & disown
 ```
 
---- | --- | ---
 -p  |  proteinpfile  |  a .faa file that includes all the protein sequences of a genome.
+--- | --- | ---
 -b  |  namebase  |  prefix for all output file names, 
 -e  |  evalue  |  = the E-value of BLAST, this evalue will be used in step 3 for choosing stringent blast hits and it should be smaller than 1e-10. 
 
