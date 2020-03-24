@@ -40,7 +40,7 @@ evalue = args.evalue
 
 def selfblastp(proteinfile,namebase):
     #BlastP the given proteins against SwissProt database, the output will be used at the paralog annotation step that will come later on.
-    if not path.exists(f"./{namebase}.blastp"):
+    if not path.exists(f"blastp/{namebase}.blastp"):
         runCommand = f"blastp -query {proteinfile} -out blastp/{namebase}.blastp -db SwissProt"
         p1 = Popen(runCommand.split(), stdout=PIPE, close_fds=True, shell=False)
         p1.wait()    
