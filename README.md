@@ -18,6 +18,7 @@ To run Rparalog, you need:
 * blastp 2.7.1+
 * sqlite 3.27.2
 * a simple SQLite database (with the fixed name: SwissProt.sqlite) should be built beforehand (see below for more instruction), and SwissProt.sqlite should be put in the folder, src/. 
+
 		1. Download SwissProt database: `wget ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/ uniprot_sprot.dat.gz`
 		2. Put each SwissProt record on one line (sprot.tab), 
 		```bash
@@ -39,6 +40,7 @@ To run Rparalog, you need:
 			UPDATE swissprot SET ec = null WHERE ec = "null";
 			CREATE INDEX accnr ON swissprot (accnr);
 			.quit
+			
    * (In databases, a missing value is represented by the null value. However when we import data to a SQLite table it’s not possible to set a value to be absent. In our data we have represented missing value as the string null. We have to convert these values to true null values, that's why we did the UPDATE steps above)
 
 ### Building and installing 
@@ -100,6 +102,7 @@ Gene_id  |  UniprotID_of_blastp_best_hit  |  PfamID_of_blastp_best_hit |  Functi
 ./src/Rparalog.py -p proteinfile  -b namebase -e evalue & disown
 ```
 
+--- | --- | ---
 -p  |  proteinpfile  |  a .faa file that includes all the protein sequences of a genome.
 -b  |  namebase  |  prefix for all output file names, 
 -e  |  evalue  |  = the E-value of BLAST, this evalue will be used in step 3 for choosing stringent blast hits and it should be smaller than 1e-10. 
