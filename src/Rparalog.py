@@ -10,28 +10,16 @@ from os import path
 from subprocess import Popen, PIPE, STDOUT
 
 if len(sys.argv) != 11:
-    sys.exit("ERROR! The program should be run as ./src/Rparalog.py -g genomefile -f gtffile -p blastpfile -b namebase -e evalue & disown, \
-        e.g. ./src/Rparalog.py -g data/Plasmodium_knowlesi.genome -f data/Plasmodium_knowlesi.gtf -p ./blastp/pk.blastp -b pk -e 1e-50 & disown")
+    sys.exit("ERROR! The program should be run as ./src/Rparalog.py -p proteinfile -b namebase -e evalue & disown, \
+        e.g. ./src/Rparalog.py -p pk.faa -b pk -e 1e-50 & disown")
 
 #Parse the command line arguments using argparse
-parser = argparse.ArgumentParser(description = 'This program will predict gene paralogs for a given genome using a relaxed reciprocal-best-hit blast strategy')
-parser.add_argument(
-    '-g',
-    dest = "genomefile",
-    metavar = 'GENOMEFILE',
-    type = str,
-    default = True)
-parser.add_argument(
-    '-f',
-    metavar = "GTFFILE",
-    dest = "gtffile",
-    type = str,
-    default = True)
+parser = argparse.ArgumentParser(description = 'This program will predict gene paralogs for a given set protein sequences using a relaxed reciprocal-best-hit blast strategy')
 parser.add_argument(
     '-p',
-    metavar = "BLASTPFILE",
-    dest = "blastpfile",
-    type = argparse.FileType('r'),
+    dest = "proteinfile",
+    metavar = 'PROTEINFILE',
+    type = str,
     default = True)
 parser.add_argument(
     '-b',
@@ -46,25 +34,24 @@ parser.add_argument(
     type= float,
     default = True)
 args = parser.parse_args()
-genomefile = args.genomefile
-gtffile = args.gtffile
-blastpfile = args.blastpfile
+proteinfile = args.proteinfile
 namebase = args.namebase
 evalue = args.evalue
 
-def selfblastp(genomefile,gtffile,namebase):
-    #Withdraw the predited protein sequences from the .gtf file (from GeneMark gene prediciton) and the assembled genome sequence file using gffParse.pl
-    runCommand = f"perl bin/gffParse.pl -i {genomefile} -g {gtffile} -f CDS -d ./{namebase}_gffParse -b {namebase} -p -a gene_id"
-    p1 = Popen(runCommand.split(), stdout=PIPE, close_fds=True, shell=False)
-    p1.wait()
-    #make a databse from the predicted protein sequences
+def selfblastp(proteinfile,namebase):
+    #BlastP the given proteins against SwissProt database, the output will be used at the paralog annotation step that will come later on.
+    if not path.exists(f"./{namebase}.blastp"):
+        runCommand = f"blastp -query {proteinfile} -out blastp/{namebase}.blastp -db SwissProt"
+        p1 = Popen(runCommand.split(), stdout=PIPE, close_fds=True, shell=False)
+        p1.wait()    
+    #make a databse from the given protein sequences
     if not path.exists(f"database/{namebase}.phr"):
-        runCommand2 = f"makeblastdb -in ./{namebase}_gffParse/{namebase}.faa -out database/{namebase}Aa -dbtype prot"
+        runCommand2 = f"makeblastdb -in {proteinfile} -out database/{namebase}Aa -dbtype prot"
         p2 = Popen(runCommand2.split(), stdout=PIPE, close_fds=True, shell=False)
         p2.wait()
-    #Blastp the predicted protein sequences against its own datebase.
+    #Blastp the given protein sequences against its own datebase.
     if not path.exists(f"blastp/{namebase}_vs_{namebase}.blastp"):
-        runCommand3 = f"blastp -query ./{namebase}_gffParse/{namebase}.faa -db database/{namebase}Aa -evalue 1e-10 -out blastp/{namebase}_vs_{namebase}.blastp -num_descriptions 50 -num_threads 2"
+        runCommand3 = f"blastp -query {proteinfile} -db database/{namebase}Aa -evalue 1e-10 -out blastp/{namebase}_vs_{namebase}.blastp -num_descriptions 50 -num_threads 2"
         p3 = Popen(runCommand3.split(), stdout=PIPE, close_fds=True, shell=False)
         p3.wait()
     
@@ -74,21 +61,24 @@ def selfblastp(genomefile,gtffile,namebase):
 #Only hits with an e-value smaller than the provided evalue will be accepted for the the follow-up analyses.
 def blastParser(namebase, evalue):
     with open (f"blastp/{namebase}_vs_{namebase}.blastp", "r") as fin, open (f"{namebase}_query_hit.out", "w") as fout:
-        hit = ""
         for line in fin:
             if "Query=" in line:
+                hit = ""
                 Query_line = line.rstrip().split()[1]
             elif line.startswith(">") and (Query_line != line.rstrip().split()[1]):
                 hit = line.split()[1]
+                EN = 0
             elif "Expect =" in line and hit:
-                EVAL = float(line.split(" ")[9][:-1])
-                if EVAL < evalue:
-                    print(Query_line, end="\t", file=fout)
-                    print(hit, file=fout)
+                if EN==0:
+                    EVAL = float(line.split(" ")[9][:-1])
+                    if EVAL < evalue:
+                        print(Query_line, hit, sep="\t", file=fout)
+                        EN += 1
+                        hit = ""
 
 
 #Only protein pairs that are each other's blast hit (given the provided evalue above) will be accepted as paralogous pairs
-def getreciprocal_hit():
+def getParalogPair():
     query_hit = []
     with open(f"{namebase}_query_hit.out", "r") as fin2:
         for line2 in fin2:
@@ -96,22 +86,23 @@ def getreciprocal_hit():
                 line2 = line2.rstrip().split("\t")
                 query_hit.append(line2)
     duplicates = []
-    for [q, h] in query_hit:
-        rev = [h, q]
-        if rev in query_hit:
-            if not duplicates:
-                duplicates.append([q,h])
-            elif rev not in duplicates:
-                forw = [q,h]
-                forw.sort(key = lambda x: int(x.split("_")[0]))
-                duplicates.append(forw)
+    with open (f"{namebase}_paralogPair.out", "w") as foutr:
+        for [q, h] in query_hit:
+            rev = [h, q]
+            if rev in query_hit:
+                if rev not in duplicates:
+                    forw = [q,h]
+                    forw.sort(key = lambda x: int(x.split("_")[0]))
+                    duplicates.append(forw)
+                    print(forw[0], forw[1], sep="\t", file=foutr)
     return duplicates
+
 
 #We traverse the pairwise relationships (between the paralogous pairs) to find the maximally connected clusters that are disjoint from one another. 
 #Paralogous pairs were clustered together if they have any shared members.
-def getparalogs():
+def paralogClustering():
     paralogs = []
-    rest = reciprocal_hit
+    rest = paralogPair
     l = len(rest)
     while l>0:   
         paralog = set()
@@ -133,20 +124,21 @@ def getparalogs():
                 del rest[n]
             l = len(rest)
         paralogs.append(paralog)
-    with open (f"{namebase}_paralog.out","w") as fout2:
+    with open (f"{namebase}_paralogClusters.out","w") as fout2:
         for paralog in paralogs:
             print(len(paralog), file=fout2, end="\t")
             for copy in paralog:
                 print(copy, end="\t", file=fout2)
             print(file=fout2)
 
+
 #Here I provide the annotation information for the predicted paralogs for the users, it's up to them how to interpret the results
 #Here the uniprot accession no., pfam id and description of the best blastp hit (against Swissprot database) will be collected for each predicted paralogs
 #In order to do what I want, I have built my own SQLite database, called SwissProt.sqlite
 #If time allows, it's better to the blastp against the Uniprot database, by doing that, one can get more gene annotated.
 #First, parse the .blastP file (from blastp of the .faa file against Swissprot database) and get the uniprot accession no. of the best hits for each query
-def blastpParser_annotate(blastpfile):
-    with open (f"./blastp/{namebase}_besthit.swissprot", "w") as fout3:
+def blastpParserForAnnotate():
+    with open (f"./blastp/{namebase}_besthit.swissprot", "w") as fout3, open(f"./blastp/{namebase}.blastp", "r") as blastpfile:
         for line in blastpfile:
             if "Query=" in line:
                 Query_line = line.rstrip().split()[1]
@@ -160,8 +152,8 @@ def blastpParser_annotate(blastpfile):
                         target=0
 
 #The second annotation step is to use the uniprot id of the best hit from the blastp step to withdraw pfam and description information from the SQLite database
-def pannotate():
-    with open(f"./blastp/{namebase}_besthit.swissprot", "r") as fin3, open (f"{namebase}_paralog.out", "r") as fin4, open(f"{namebase}_pannotate.out", "w") as fout4:
+def pannotate(proteinfile):
+    with open(f"./blastp/{namebase}_besthit.swissprot", "r") as fin3, open (f"{namebase}_paralogClusters.out", "r") as fin4, open(f"{namebase}_pannotate.out", "w") as fout4:
         #withdraw the uniprot id of the best hit from the blastp step
         uniprot = {}
         for line3 in fin3:
@@ -172,9 +164,9 @@ def pannotate():
         for line4 in fin4: 
             line4 = line4.rstrip().split()
             print("#######Paralog_cluster", n, file=fout4)
-            with open(f"paralog_seq/{namebase}_paralog_cluster{n}.faa", "w+") as foutx: #print the protein sequences for each paralog cluster into a file (in the paralog_seq folder)
+            with open(f"paralog_seq/{namebase}_paralogCluster{n}.faa", "w+") as foutx: #print the protein sequences for each paralog cluster into a file (in the paralog_seq folder)
                 for copy in line4[1:]:
-                    runCommandx = f"grep -A 1 {copy} ./{namebase}_gffParse/{namebase}.faa"
+                    runCommandx = f"grep -A 1 {copy} {proteinfile}"
                     Popen(runCommandx.split(), stdout=foutx, stderr=PIPE, universal_newlines=True).communicate()
                     if (copy not in uniprot) or (not uniprot[copy]):
                         print(copy, "null", sep="\t", file=fout4)
@@ -189,10 +181,10 @@ def pannotate():
             n += 1
 
 if __name__ == "__main__":
-    selfblastp(genomefile,gtffile,namebase)
+    selfblastp(proteinfile, namebase)
     blastParser(namebase, evalue)
-    reciprocal_hit=getreciprocal_hit()
-    paralogs = getparalogs()
-    blastpParser_annotate(blastpfile)
-    pannotate()
+    paralogPair=getParalogPair()
+    paralogClustering()
+    blastpParserForAnnotate()
+    pannotate(proteinfile)
 
