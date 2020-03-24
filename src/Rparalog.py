@@ -149,7 +149,7 @@ def blastpParserForAnnotate():
                     print(line.split()[1].split("|")[1], file=fout3)
                     target += 1
                 else: 
-                        target=0
+                    target=0
 
 #The second annotation step is to use the uniprot id of the best hit from the blastp step to withdraw pfam and description information from the SQLite database
 def pannotate(proteinfile):
@@ -176,8 +176,10 @@ def pannotate(proteinfile):
                         conn = sqlite3.connect('./src/SwissProt.sqlite') #Make a connection object
                         c = conn.cursor() #Create a cursor object
                         c.execute('SELECT pfam, description FROM swissprot WHERE accnr=?;', uniprotID)
-                        for row in c:
-                            print("\t".join(map(str, row)), file=fout4)
+                        if c: 
+                            for row in c:
+                                print("\t".join(map(str, row)), file=fout4)
+                        else:
                             print(file=fout4)
             n += 1
 
