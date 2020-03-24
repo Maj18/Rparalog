@@ -9,7 +9,7 @@ import argparse
 from os import path
 from subprocess import Popen, PIPE, STDOUT
 
-if len(sys.argv) != 11:
+if len(sys.argv) != 7:
     sys.exit("ERROR! The program should be run as ./src/Rparalog.py -p proteinfile -b namebase -e evalue & disown, \
         e.g. ./src/Rparalog.py -p pk.faa -b pk -e 1e-50 & disown")
 
