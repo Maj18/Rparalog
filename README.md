@@ -17,38 +17,7 @@ To run Rparalog, you need:
 * makeblastdb 2.7.1+
 * blastp 2.7.1+
 * sqlite 3.27.2
-
-### Building and installing 
-* If you have git installed on your computer, you can simply get the software by 
-```bash
-git clone https://github.com/Maj18/Rparalog.git
-```
-* Otherwise, you can download the software folder from https://github.com/Maj18/Rparalog.
-* Change directory into the extracted folder e.g. via cd Rparalog or cd Rparalog-master (if downloaded directly)
-* you can now run ./src/Rparalog.py ... directly.
-
-## Quick Start
-./src/Rparalog.py -p proteinfile  -b namebase -e evalue & disown
-
-## Quick Tutorial
-Rparalog assumes that you have all your protein sequences in FASTA format,
-
-## Analysis
-1. Self BLASTP:
-	A. Parse the .gtf file with the help of genome file using gffParse.p, a .faa (protein sequence fasta) file will be generated.
-	B. Build a database from the .faa file.
-	C. Blast the .faa file against its own database (from 1B).
-2. Parse  the self .blastp file:
-	* In this step, the .blastp file from 1C will be parsed to withdraw all the hits for each query, The output file cotains query-hit pairs.
-3. Get reciprocal hits:
-	* Only protein pairs that are each other hits within the 1C blastp analysis are kept as paralogous pairs.
-4. Paralog clustering:
-	* Paralogous pairs were clustered together into a paralog cluster if they have any shared members.
-5. Annotate the predicted paralogs:
-	1. parse the provide .blastP file (got via command-line arguments, it is from blast of the 1A .faa file against a SwissProt database ) and get the uniprot accession no. of the best hits for each query.
-	2. Use the uniprot id from 5B to withdraw the corresponding pfam domains information and protein descriptions from the self-built databse SwissProti.sqlite (provided).
-	3. Withdraw protein sequences from the 1A .faa file for all the members within a paralog cluster into one file and put in the paralog_seq folder.
-	4. The SwissProt.sqlite database is built as follows:
+* a simple SwissProt.sqlite database should be built beforehand (see below for more instruction), and SwissProt.sqlite should be put in the folder src. 
 		1. Download SwissProt database: `wget ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/ uniprot_sprot.dat.gz`
 		2. Put each SwissProt record on one line (sprot.tab), 
 		```bash
@@ -71,15 +40,53 @@ Rparalog assumes that you have all your protein sequences in FASTA format,
 			CREATE INDEX accnr ON swissprot (accnr);
 			.quit
    * (In databases a missing value is represented by the null value. However when we import data to a SQLite table it’s not possible to set a value to be absent. In our data we have represented missing value as the string null. We have to convert these values to true null values, that's why we did the UPDATE steps above)
+
+### Building and installing 
+* If you have git installed on your computer, you can simply get the software by 
+```bash
+git clone https://github.com/Maj18/Rparalog.git
+```
+* Otherwise, you can download the software folder from https://github.com/Maj18/Rparalog.
+* Change directory into the extracted folder e.g. via cd Rparalog or cd Rparalog-master (if downloaded directly)
+* you can now run ./src/Rparalog.py ... directly.
+
+## Quick Start
+./src/Rparalog.py -p proteinfile  -b namebase -e evalue & disown
+
+## Quick Tutorial
+Rparalog assumes that you have all your protein sequences in FASTA format, the software package contains an example, namely pk.faa. The full command line for the example files would thus be `./src/Rparalog.py -p pk.faa -b pk -e 1e-50 & disown`. (Please be aware that examples of SwissProt.sqlite database, .blastp (against SwissProt database) and self-database and .blast (against self-built database) have been provided for quick test, due to the uploading size limitation of Github, some of these files are not complete, therefore the ..._pannotate.out will have lots of missing data, just you know it.
+
+Below is a step by step explanation of how the software works:
+
+### Analysis
+**Part I.**
+1. Blast the user-provide protein sequence file (.faa) against Swissprot database, the outcome will be used for the paralog annotation later on.
+2. Self BLASTP:
+	A. Build a database from the .faa file.
+	B. Blast the .faa file against its own database (from 2A).
+
+**PartII**
+3. Parse  the self .blastp file:
+	* In this step, the .blastp file from 2B will be parsed to withdraw all the hits for each query, The output file contains query-hit pairs.
+4. Get paralogous pairs:
+	* Only protein pairs that are each other's hit within the 2B blastp analysis are kept as paralogous pairs.
+5. Paralog clustering:
+	* Paralogous pairs were clustered together into paralog clusters if they have any shared members.
+
+**PartIII**
+6. Annotate the predicted paralogs:
+	A. parse the .blastP file (from step 1) and get the uniprot accession no. of the best hit for each query.
+	B. Use the uniprot id from 6A to withdraw the corresponding pfam domain and protein description information from the self-built databse SwissProti.sqlite (see **Prerequisites**).
+	C. Withdraw protein sequences from the  .faa file for all the members within a paralog cluster into one file and put it in the paralog_seq folder.
 			
-## Output files:
+### Output files:
 Among all the generated folders and files, three deserve special attention:
-1. pk_paralog.out
+1. {namebase}_paralogCluster.out
 
 	The_number_of_cluster_members |  Paralogous_copy1  |  Paralogous_copy2  
 	---  |  ---  |  ---
 	
-2. pk_pannotate.out.
+2. {namebase}_pannotate.out.
 
 Gene_id  |  UniprotID_of_blastp_best_hit  |  PfamID_of_blastp_best_hit |  Functional_description_of_blastp_best_hit
 ---  |  ---  |  ---  |  ---  |
@@ -93,18 +100,10 @@ Gene_id  |  UniprotID_of_blastp_best_hit  |  PfamID_of_blastp_best_hit |  Functi
 ./src/Rparalog.py -p proteinfile  -b namebase -e evalue & disown
 ```
 * Here, 
-	* genomefile are an assemble genome sequence fasta file,
-	* gtffile is a .gtf that is generated from a GeneMark gene prediction analysis, 
-	* blastpfile is a .blastp file that comes from a blastp of the predicted protein sequence files again SwissProt database (uniprot database is also fine).
-	* namebase for defining the output file names, 
-	* evalue = the E-value of BLAST, evalue should be smaller than 1e-10 (this the e-value that is used for the self blast within the program). 
+-p | proteinpfile | a .faa file that include all the protein sequences of a genome.
+-b | namebase |  prefix for all output file names, 
+-d | evalue |  = the E-value of BLAST, evalue should be smaller than 1e-10. 
 
-* e.g. 
-```bash
-./src/Rparalog.py -g data/Plasmodium_knowlesi.genome -f data/Plasmodium_knowlesi.gtf -p ./blastp/pk.blastp -b pk -e 1e-50 & disown
-```
-* (NBS. Please use the example command line for testing as it is given, because some of the steps (like the gffparse, makeblastdb, and blastp steps) in the program take too long time, therefore for testing, the output for those time-consuming steps have been included in the repository and therefore can be used directly for the following steps.)
-	
 ## Caution!
 
 It should be noted that, the Rparalog program can only predict what paralogs are there in a genome, but can not tell their exact copy number, the variation of which has been found to cause many different kinds of diseases. This is because nowadays, the assembled genomes are mostly haploid, due to the assembling challenge in separating between homologous chromosomes. However, as the fast development of long-fragment sequencing technology, it may be possible one day to assemble homologous chromosomes separately, then it would be much easier to use Rparalog to decide the copy numbers of paralogs with high confidence.			
